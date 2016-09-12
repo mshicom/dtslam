@@ -58,7 +58,7 @@ if(WIN32)
 else()
     set(gflags_DIR "${EP_PREFIX}/lib/cmake/gflags")
 endif()
-file(STRINGS "${gflags_DIR}/gflags-config.cmake" NVMARK REGEX "NVMARK")
+#file(STRINGS "${gflags_DIR}/gflags-config.cmake" NVMARK REGEX "NVMARK")
 if(NOT NVMARK AND EXISTS "${gflags_DIR}/gflags-config.cmake")
     file(APPEND "${gflags_DIR}/gflags-config.cmake"
                 "\n# NVMARK\nset(gflags_LIBRARIES gflags-static)\n")

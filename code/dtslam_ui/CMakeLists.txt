@@ -16,7 +16,7 @@ GroupSources(dtslam_ui)
 # Target
 
 add_library(dtslam_ui ${sources_cpp} ${sources_h} ${assets_all})
-target_link_libraries (dtslam_ui glew dtslam ${OpenCV_LIBRARIES} freeglut)
+target_link_libraries (dtslam_ui dtslam ${OpenCV_LIBRARIES} glut)
 target_include_directories(dtslam_ui PUBLIC ${OpenCV_INCLUDE_DIRS} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 #INSTALL_TARGET_WITH_DEPS(alg_experiments ${3RD_PARTY_DIR}/bin)

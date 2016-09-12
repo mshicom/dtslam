@@ -60,17 +60,24 @@ endmacro(INSTALL_TARGET_WITH_DEPS)
 
 ###############################
 # Needed package
+FIND_PACKAGE( OpenMP REQUIRED)
+if(OPENMP_FOUND)
+message("OPENMP FOUND")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+endif()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-
+INCLUDE_DIRECTORIES(/usr/include/eigen3/)
 find_package(OpenGL REQUIRED)
 find_package(Threads REQUIRED)
-#find_package(Eigen REQUIRED PATHS ${THIRD_PARTY_PREFIX})
-#find_package(OpenCV COMPONENTS core calib3d highgui imgproc features2d video NO_MODULE NO_DEFAULT_PATH PATHS ${THIRD_PARTY_PREFIX})
+#find_package(Eigen3 REQUIRED PATHS ${THIRD_PARTY_PREFIX})
+find_package(OpenCV COMPONENTS core calib3d highgui imgproc features2d video NO_MODULE NO_DEFAULT_PATH PATHS ${THIRD_PARTY_PREFIX})
 #find_package(GLOG REQUIRED PATHS ${THIRD_PARTY_PREFIX})
 #find_package(gflags REQUIRED PATHS ${THIRD_PARTY_PREFIX})
 #find_package(SuiteSparse REQUIRED PATHS ${THIRD_PARTY_PREFIX})
-#find_package(CERES REQUIRED PATHS ${THIRD_PARTY_PREFIX})
+#find_package(ceres REQUIRED PATHS ${THIRD_PARTY_PREFIX})
 #find_package(freeglut REQUIRED PATHS ${THIRD_PARTY_PREFIX})
 #find_package(GLEW REQUIRED PATHS ${THIRD_PARTY_PREFIX})
 
