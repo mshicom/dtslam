@@ -1,0 +1,12 @@
+#This is a flagfile. Pass it to the slam application with the -flagfile switch.
+ -CameraFx=1211.591680976173
+ -CameraFy=1211.338154971508
+ -CameraU0=1005.085267969355
+ -CameraV0=1005.52453096679
+ -CameraK1=-0.1567249858125879
+ -CameraK2= 0.06371627254565333
+ -CameraWidth=2040
+ -CameraHeight=2040
+ -DriverDataPath=/mnt/workbench
+ -DriverBagFile=husky_2016-09-07-17-15-44_1.bag
+ -DriverTopicName=/ximea/image

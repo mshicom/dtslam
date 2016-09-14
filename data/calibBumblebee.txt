@@ -1,0 +1,12 @@
+#This is a flagfile. Pass it to the slam application with the -flagfile switch.
+ -CameraFx=435.016
+ -CameraFy=435.016
+ -CameraU0=511.913
+ -CameraV0=418.063
+ -CameraK1=0
+ -CameraK2=0
+ -CameraWidth=1024
+ -CameraHeight=768
+ -DriverDataPath=/home/nubot/data/
+ -DriverBagFile=bumblebee_11170132.bag
+ -DriverTopicName=/stereo/11170132/left

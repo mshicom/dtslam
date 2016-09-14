@@ -20,7 +20,13 @@ list(APPEND sources_h "${PROJECT_SOURCE_DIR}/dtslam_ui/SlamDriver.h")
 
 #Important to add the MainDriver.h file so that the project recompiles when it changes.
 add_executable(dtslam_desktop ${sources_cpp} ${sources_h})
-target_link_libraries (dtslam_desktop dtslam_ui dtslam glut)
+
+find_package(catkin REQUIRED COMPONENTS
+             cpp_common rostime roscpp_traits
+             roscpp_serialization sensor_msgs rosbag)
+include_directories(${catkin_INCLUDE_DIRS})
+
+target_link_libraries(dtslam_desktop dtslam_ui dtslam glut ${catkin_LIBRARIES})
 
 #INSTALL_TARGET_WITH_DEPS(dtslam_desktop ${3RD_PARTY_DIR}/bin)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/dtslam/assets DESTINATION .)

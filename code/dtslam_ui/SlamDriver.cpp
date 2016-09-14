@@ -37,6 +37,7 @@
 
 #include "OpenCVDataSource.h"
 #include "SequenceDataSource.h"
+#include "RosDataSource.h"
 #include "UserInterfaceInfo.h"
 #include "ViewportTiler.h"
 
@@ -273,6 +274,22 @@ bool SlamDriver::initImageSrc()
 		mUsingCamera = true;
 		DTSLAM_LOG << "Camera opened succesfully\n";
 	}
+    else if (!FLAGS_DriverBagFile.empty())
+    {
+        //Use ros bagfile
+        std::string bagFilename = FLAGS_DriverDataPath + "/" + FLAGS_DriverBagFile;
+        DTSLAM_LOG << "Bag file: " << bagFilename << "\n";
+        RosDataSource *source = new RosDataSource();
+
+        mImageSrc.reset(source);
+        if(!source->open(bagFilename, FLAGS_DriverTopicName))
+        {
+            DTSLAM_LOG << "Error opening bagfile.\n";
+            return false;
+        }
+
+        DTSLAM_LOG << "Opened bagfile succesfully\n";
+    }
 	else if (!FLAGS_DriverSequenceFormat.empty())
 	{
 		//Use image sequence
@@ -304,7 +321,7 @@ bool SlamDriver::initImageSrc()
 	    }
 
 	    DTSLAM_LOG << "Opened video file succesfully\n";
-	}
+    }
 	else
 	{
 		DTSLAM_LOG << "No image source specified. Set either DriverCameraId, DriverVideoFile, or DriverSequenceFormat.\n";

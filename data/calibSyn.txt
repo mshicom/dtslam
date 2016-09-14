@@ -1,0 +1,12 @@
+#This is a flagfile. Pass it to the slam application with the -flagfile switch.
+ -CameraFx=481.20255528
+ -CameraFy=-479.99972512
+ -CameraU0=320.5
+ -CameraV0=240.5
+ -CameraK1=0
+ -CameraK2=0
+ -CameraWidth=640
+ -CameraHeight=480
+ -DriverDataPath=/media/nubot/data/GoogleCloud/Documents/MATLAB/variational/data
+ -DriverSequenceFormat=scene_00_%.4d.png
+

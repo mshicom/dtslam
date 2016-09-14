@@ -5,6 +5,7 @@ cmake_minimum_required(VERSION 3.0)
 
 project(dtslam CXX C)
 
+set(CMAKE_BUILD_TYPE Release)
 # The version number.
 set (dslam_VERSION_MAJOR 0)
 set (dslam_VERSION_MINOR 1)
