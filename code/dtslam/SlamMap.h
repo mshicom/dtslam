@@ -81,7 +81,7 @@ class SlamRegion : public ISerializable
 public:
 	friend class SlamMap;
 
-	SlamRegion() : mShouldBundleAdjust(false), mFirstTriangulationFrame(NULL)
+    SlamRegion() : mFirstTriangulationFrame(NULL), mShouldBundleAdjust(false)
 	{}
 
 	int getId() const {return mId;}

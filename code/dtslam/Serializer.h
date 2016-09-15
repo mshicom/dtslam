@@ -20,7 +20,8 @@
 #include <unordered_set>
 #include <exception>
 #include <cassert>
-#include "ProjectConfig.h"
+//#include "ProjectConfig.h"
+#define POINTER_SIZE 8
 
 #if POINTER_SIZE == 8
 namespace cv

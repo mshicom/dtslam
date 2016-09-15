@@ -17,8 +17,8 @@ configure_file(ProjectConfig.h.in ProjectConfig.h)
 # Target
 
 
-
-add_library(dtslam ${sources_cpp} ${sources_h} ${sources_hpp})
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+add_library(dtslam STATIC ${sources_cpp} ${sources_h} ${sources_hpp})
 target_link_libraries(dtslam PUBLIC ceres ${glog_LIBRARIES} GL pthread GLEW glog gflags ${OpenCV_LIBRARIES} cholmod ccolamd camd colamd amd lapack blas)
 
 include_directories(${OpenCV_INCLUDE_DIRS})

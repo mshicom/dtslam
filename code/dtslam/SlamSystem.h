@@ -19,7 +19,7 @@
 #include "SlamMap.h"
 #include "PoseTracker.h"
 #include "SlamMapExpander.h"
-
+#include <opencv2/core.hpp>
 namespace dtslam
 {
 
