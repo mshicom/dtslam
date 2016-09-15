@@ -323,8 +323,8 @@ void PoseEstimator::fitEssential(std::vector<FeatureMatch> &matches)
 		mPoseType = EPoseEstimationType::Essential;
 		mPose = essentialPose;
 	}
-	DTSLAM_LOG << "FitEssential: Assuming " << ((mPoseType==EPoseEstimationType::PureRotation)?"pure rotation":"full motion") << ", "
-			<< "R=" << (cv::Mat)mPose.getRotationRef() << ", t=" << mPose.getTranslationRef() << "\n";
+    DTSLAM_LOG << "FitEssential: Assuming " << ((mPoseType==EPoseEstimationType::PureRotation)?"pure rotation":"full motion") << ", \n"
+            << "R=" << (cv::Mat)mPose.getRotationRef() << ",\n t=" << mPose.getTranslationRef() << "\n";
 }
 
 void PoseEstimator::fitPnP(std::vector<FeatureMatch> &matches)

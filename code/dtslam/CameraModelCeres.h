@@ -28,7 +28,7 @@ void CameraModel_<TDistortionModel>::projectFromWorldJacobian(const cv::Point3f 
 	ceres::Jet<float, 3> uJet;
 	ceres::Jet<float, 3> vJet;
 
-	projectFromWorld(xJet,yJet,zJet,uJet,vJet);
+    projectFrom3D(xJet,yJet,zJet,uJet,vJet);
 	ujac[0] = uJet.v[0];
 	ujac[1] = uJet.v[1];
 	ujac[2] = uJet.v[2];

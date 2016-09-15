@@ -25,7 +25,7 @@ namespace dtslam
 
 
 	DEFINE_int32(PyramidMaxTopLevelWidth, 240, "Maximum width of the highest pyramid level for a frame.");
-	DEFINE_int32(SBIMaxWidth, 60, "Maximum width for the Small Blurry Image, input will be downsampled until width is less than this.");
+    DEFINE_int32(SBIMaxWidth, 60, "Maximum width for the SBI(Small Blurry Image), i.e thumbnail image, input will be downsampled until width is less than this.");
 	DEFINE_int32(FASTThreshold, 10, "Threshold for the FAST keypoint detector");
 	DEFINE_int32(FrameKeypointGridSize, 30, "The grid size used to sort keypoints in the frame");
 

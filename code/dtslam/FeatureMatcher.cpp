@@ -232,7 +232,7 @@ bool FeatureMatcher::findMatch(const FeatureProjectionInfo &projection,
 		if(projection.getType() == EProjectionType::EpipolarLine)
 		{
 			auto &epipolarData = projection.getEpipolarData();
-			warpPosition = mCamera->projectFromWorld(epipolarData.infiniteXn);
+			warpPosition = mCamera->projectFrom3D(epipolarData.infiniteXn);
 			getEpipolarCandidates(getFrame(), projection.getOctave(), epipolarData.epiPlaneNormal, epipolarData.minDepthXn, epipolarData.infiniteXn, warpPosition, searchPositions);
 		}
 		else
@@ -470,7 +470,7 @@ bool FeatureMatcher::findMatch(const cv::Mat1b &refPatch,
 		{
 			//Add to match list
 			positions.push_back(match.refinedPos);
-			positionXns.push_back(getFrame().getCameraModel().unprojectToWorld(match.refinedPos));
+			positionXns.push_back(getFrame().getCameraModel().unprojectTo3D(match.refinedPos));
 		}
 	}
 

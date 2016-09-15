@@ -274,13 +274,13 @@ FeatureProjectionInfo SlamRegion::Project3DFeature(const Pose3D &pose, const cv:
 {
 	//Project position to see if it is within the image
 	const cv::Point3f xc = pose.apply(feature.getPosition());
-	const cv::Point2f uv = camera.projectFromWorld(xc);
+    const cv::Point2f uv = camera.projectFrom3D(xc);
 
 	if(!camera.isPointInside(xc,uv))
 		return FeatureProjectionInfo();
 
 	//Project positionPlusOne to determine scale
-	const cv::Point2f uv1 = camera.projectFromWorld(pose.apply(feature.getPositionPlusOne()));
+    const cv::Point2f uv1 = camera.projectFrom3D(pose.apply(feature.getPositionPlusOne()));
 
 	int distSq = static_cast<int>(cvutils::PointDistSq(uv,uv1)+0.5f);
 	if(distSq < 1)
@@ -310,7 +310,7 @@ FeatureProjectionInfo SlamRegion::Project2DFeature(const Pose3D &pose, const cv:
 
 	//Project infinite position
 	const cv::Point3f infiniteXn = relativePose.getRotationRef() * m.getUniquePositionXn();
-	const cv::Point2f infiniteUv = camera.projectFromWorld(infiniteXn);
+    const cv::Point2f infiniteUv = camera.projectFrom3D(infiniteXn);
 
 	//Check projection is in image
 	if(!camera.isPointInside(infiniteXn, infiniteUv))
@@ -379,10 +379,10 @@ SlamFeature *SlamRegion::createFeature2D(SlamKeyFrame &keyFrame, const cv::Point
 	feature->mIs3D = false;
 	feature->setStatus(SlamFeatureStatus::NotTriangulated);
 	//feature->mPosition = SlamMap::Unproject2d(position, keyFrame.getCameraModel(), Rt); //Position should not be set and cannot be queried until triangulated
-	feature->mPosition = Rt*camera.unprojectToWorld(position); //Position should not be set and cannot be queried until triangulated
+    feature->mPosition = Rt*camera.unprojectTo3D(position); //Position should not be set and cannot be queried until triangulated
 	feature->mNormal = feature->mPosition;
 
-	const cv::Point3f positionPlusOne = Rt*camera.unprojectToWorld(cv::Point2f(position.x + scale, position.y));
+    const cv::Point3f positionPlusOne = Rt*camera.unprojectTo3D(cv::Point2f(position.x + scale, position.y));
 	feature->mPlusOneOffset = positionPlusOne-feature->mPosition;
 
 	feature->mMeasurements.push_back(std::unique_ptr<SlamFeatureMeasurement>(new SlamFeatureMeasurement(feature.get(), &keyFrame, std::vector<cv::Point2f>(1,position), std::vector<cv::Point3f>(1,positionXn), octave)));
@@ -425,10 +425,10 @@ void SlamRegion::convertTo3D(SlamFeature &feature, SlamFeatureMeasurement &m1, S
 	//Calculate position plus one
 	const int scale = 1<<m1.getOctave();
 	const cv::Point2f uv1 = cv::Point2f(m1.getUniquePosition().x+scale,m1.getUniquePosition().y);
-	const cv::Point3f plusOne = depth * m1.getKeyFrame().getCameraModel().unprojectToWorld(uv1);
+    const cv::Point3f plusOne = depth * m1.getKeyFrame().getCameraModel().unprojectTo3D(uv1);
 	const cv::Point3f plusOneWorld = refPose.applyInv(plusOne);
 
-	const cv::Point3f center = depth * m1.getKeyFrame().getCameraModel().unprojectToWorld(m1.getUniquePosition());
+    const cv::Point3f center = depth * m1.getKeyFrame().getCameraModel().unprojectTo3D(m1.getUniquePosition());
 	const cv::Point3f centerWorld = refPose.applyInv(center);
 	feature.mPlusOneOffset = plusOneWorld - centerWorld;
 
@@ -742,7 +742,7 @@ void SlamFeatureMeasurement::deserialize(Deserializer &s, const cv::FileNode &no
 	int pcount = mPositions.size();
 	mPositionXns.resize(pcount);
 	for (int i = 0; i != pcount; ++i)
-		mPositionXns[i] = getCamera().unprojectToWorld(mPositions[i]);
+        mPositionXns[i] = getCamera().unprojectTo3D(mPositions[i]);
 }
 
 } /* namespace dtslam */

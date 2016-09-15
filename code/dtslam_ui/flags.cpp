@@ -23,8 +23,8 @@ namespace dtslam
 	DEFINE_bool(DriverSingleThreaded, false, "Use a single thread for easier debugging.");
 	DEFINE_string(DriverRecordPath, "record/", "Path where the frames will be stored in case of recording.");
 
-    DEFINE_string(DriverBagFile, "translation.bag", "Name of the bagfile to use (e.g. translation.bag). This is appended to the data path.");
-    DEFINE_string(DriverTopicName, "image", "Name of the ROS image topics");
+    DEFINE_string(DriverBagFile, "", "Name of the bagfile to use (e.g. translation.bag). This is appended to the data path.");
+    DEFINE_string(DriverTopicName, "", "Name of the ROS image topics");
 	DEFINE_double(MapDrawScale, 1.0, "Scale to draw the map in the MapWindow.");
 }
 

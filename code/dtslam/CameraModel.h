@@ -78,16 +78,16 @@ public:
 	//////////////////////////////////////
 	// Project form world
 	// Same code, one using return value, one using args by-reference (for ceres)
-	cv::Point2f projectFromWorld(const cv::Point3f &xc) const
+    cv::Point2f projectFrom3D(const cv::Point3f &xc) const
 	{
-		return projectFromDistorted(mDistortionModel.distortPoint(xc));
+        return applyK(mDistortionModel.distortPoint(xc));
 	}
 	template<class T>
-	void projectFromWorld(const T &x, const T &y, const T &z, T &u, T&v) const
+    void projectFrom3D(const T &x, const T &y, const T &z, T &u, T&v) const
 	{
 		T xd, yd;
 		mDistortionModel.distortPoint(x,y,z,xd,yd);
-		projectFromDistorted(xd,yd,u,v);
+        applyK(xd,yd,u,v);
 	}
 
 	void projectFromWorldJacobian(const cv::Point3f &xc, cv::Vec3f &ujac, cv::Vec3f &vjac) const;
@@ -107,9 +107,9 @@ public:
 	// Unproject (assuming z=1)
 	// Note that often no analytical formula is present, therefore we have no templated version for ceres
 	// Also, use integer pixel positions so that we can use a LUT for undistortion
-	cv::Point3f unprojectToWorld(const cv::Point2f &uv) const
+    cv::Point3f unprojectTo3D(const cv::Point2f &uv) const
 	{
-		return mDistortionModel.undistortPoint(unprojectToDistorted(uv));
+        return mDistortionModel.undistortPoint(applyKinv(uv));
 	}
 	//cv::Point3f unprojectToWorldLUT(const cv::Point2f &uv) const
 	//{
@@ -149,18 +149,18 @@ protected:
 	//////////////////////////////////////
 	// Project form distorted
 	// Same code, one using return value, one using args by-reference (for ceres)
-	cv::Point2f projectFromDistorted(const cv::Point2f &pd) const
+    cv::Point2f applyK(const cv::Point2f &pd) const
 	{
 		return cv::Point2f(mFx*pd.x + mU0, mFy*pd.y + mV0);
 	}
 	template<class T>
-	void projectFromDistorted(const T &xd, const T &yd, T &u, T &v) const
+    void applyK(const T &xd, const T &yd, T &u, T &v) const
 	{
 		u = T(mFx)*xd + T(mU0);
 		v = T(mFy)*yd + T(mV0);
 	}
 
-	cv::Point2f unprojectToDistorted(const cv::Point2f &uv) const
+    cv::Point2f applyKinv(const cv::Point2f &uv) const
 	{
 		return cv::Point2f((uv.x - mU0) / mFx, (uv.y - mV0) / mFy);
 	}
@@ -210,7 +210,7 @@ float CameraModel_<TDistortionModel>::getMaxRadiusSq(const cv::Size2i &imageSize
 	float maxRadiusSq = 0;
 	for(int i=0; i<4; ++i)
 	{
-		const cv::Point2f xn = cvutils::NormalizePoint(unprojectToWorld(corners[i]));
+        const cv::Point2f xn = cvutils::NormalizePoint(unprojectTo3D(corners[i]));
 		const float r2 = xn.x*xn.x + xn.y*xn.y;
 		if(r2>maxRadiusSq)
 			maxRadiusSq = r2;
@@ -231,7 +231,7 @@ void CameraModel_<TDistortionModel>::initLUT()
 		cv::Vec6f *rowProjectLUT = mProjectFromWorldJacobianLUT[v];
 		for (int u = 0; u<mImageSize.width; u++)
 		{
-			rowUnprojectLUT[u] = unprojectToWorld(cv::Point2i(u,v));
+            rowUnprojectLUT[u] = unprojectTo3D(cv::Point2i(u,v));
 
 			cv::Vec3f ujac, vjac;
 			projectFromWorldJacobian(rowUnprojectLUT[u], ujac, vjac);

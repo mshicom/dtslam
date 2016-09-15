@@ -25,14 +25,14 @@ void WindowUtils::BuildEpiLineVertices(const CameraModel &camera, const cv::Poin
 
 	if(fabs(vertexXn.z) > 0.0001f)
 	{
-		vertex = camera.projectFromWorld(vertexXn);
+		vertex = camera.projectFrom3D(vertexXn);
 		vertices.push_back(vertex);
 	}
 
 	for(int k=0; k<kDivisions; ++k)
 	{
 		vertexXn+=dx;
-		vertex = camera.projectFromWorld(vertexXn);
+		vertex = camera.projectFrom3D(vertexXn);
 		vertices.push_back(vertex);
 	}
 }

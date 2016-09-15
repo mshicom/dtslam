@@ -370,9 +370,9 @@ void KeyFramePairWindow::updateSelectedMeasurement()
 		{
 			mValidSelectedProjection = true;
 			if (ma)
-				mSelectedProjectionA = ma->getCamera().projectFromWorld(ma->getFramePose().apply(mSelectedFeature->getPosition()));
+                mSelectedProjectionA = ma->getCamera().projectFrom3D(ma->getFramePose().apply(mSelectedFeature->getPosition()));
 			if (mb)
-			mSelectedProjectionB = mb->getCamera().projectFromWorld(mb->getFramePose().apply(mSelectedFeature->getPosition()));
+            mSelectedProjectionB = mb->getCamera().projectFrom3D(mb->getFramePose().apply(mSelectedFeature->getPosition()));
 		}
 
 		//Do we have valid measurements on both images?
@@ -432,7 +432,7 @@ void KeyFramePairWindow::updateSelectedMeasurement()
 //		WindowUtils::BuildEpiLineVertices(mCameraB, epipoleB, infiniteXnB, mEpiLinesB.back());
 
 		EpipolarProjection projectionB;
-		projectionB = SlamRegion::CreateEpipolarProjection(mPoseA, mCameraA.unprojectToWorld(pointA), mPoseB);
+        projectionB = SlamRegion::CreateEpipolarProjection(mPoseA, mCameraA.unprojectTo3D(pointA), mPoseB);
 		mEpiLinesB.emplace_back();
 		WindowUtils::BuildEpiLineVertices(mCameraB, projectionB.minDepthXn, projectionB.infiniteXn, mEpiLinesB.back());
 	}
@@ -446,7 +446,7 @@ void KeyFramePairWindow::updateSelectedMeasurement()
 //		WindowUtils::BuildEpiLineVertices(mCameraA, epipoleA, infiniteXnA, mEpiLinesA.back());
 
 		EpipolarProjection projectionA;
-		projectionA = SlamRegion::CreateEpipolarProjection(mPoseB, mCameraB.unprojectToWorld(pointB), mPoseA);
+        projectionA = SlamRegion::CreateEpipolarProjection(mPoseB, mCameraB.unprojectTo3D(pointB), mPoseA);
 		mEpiLinesA.emplace_back();
 		WindowUtils::BuildEpiLineVertices(mCameraA, projectionA.minDepthXn, projectionA.infiniteXn, mEpiLinesA.back());
 	}

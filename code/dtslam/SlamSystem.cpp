@@ -193,49 +193,44 @@ void SlamSystem::processImage(double timestamp, cv::Mat3b &imgColor, cv::Mat1b &
 
 void SlamSystem::idle()
 {
-	//Is the expander running?
-	bool expanderRunning = isExpanderRunning();
-	bool baRunning = isBARunning();
+    ////////////////////////////////////////////////////////////
+    // Expand map
 
-	//Expand map
-	if (!expanderRunning && mTracker->getFrame() && mTracker->getPoseType() != EPoseEstimationType::Invalid && mExpanderCheckPending)
-	{
-		//if (!mActiveRegion->getShouldBundleAdjust()) //This syncs Expander and BA so that we won't add a keyframe until BA is done. Not optimal.
-		{
-			std::unique_ptr<SlamMapExpander::CheckData> data = std::move(createDataForExpander());
-			mExpanderFinished = false;
-		
-			bool runInline = mSingleThreaded || !mActiveRegion->getFirstTriangulationFrame();
-			if (runInline)
-			{
-				//ProfileSection s("inlineExpander");
-				//expanderTask(std::move(data), false);
+    if (  mExpanderCheckPending == true           // Only if trackingSuccesful in processImage() ;
+       && mTracker->getFrame() != NULL           // Abort if fame data not valid;
+       && mTracker->getPoseType() != EPoseEstimationType::Invalid // Abort if no valid Pose;
+       && !isExpanderRunning() )                 // Abort if it is busy, isExpanderRunning()= mExpanderFuture.valid() && !mExpanderFinished;
+    {
+        //if (!mActiveRegion->getShouldBundleAdjust()) //This syncs Expander and BA so that we won't add a keyframe until BA is done. Not optimal.
+        {
+            std::unique_ptr<SlamMapExpander::CheckData> data = std::move(createDataForExpander());
+            mExpanderFinished = false;
 
-				//Must run in different thread because of profiler
-				mExpanderFuture = std::async(std::launch::async, ExpanderTask, this, data.release(), true);
-				mExpanderFuture.wait();
-			}
-			else
-			{
-				mExpanderFuture = std::async(std::launch::async, ExpanderTask, this, data.release(), true);
-			}
+            mExpanderFuture = std::async(std::launch::async, ExpanderTask, this, data.release(), true);
 
-			mExpanderCheckPending = false;
-		}
-	}
+            if (mSingleThreaded || mActiveRegion->getFirstTriangulationFrame()==NULL)
+                mExpanderFuture.wait();
 
-	//BA?
-	if (!FLAGS_DisableBA && !mExpanderAdding && !baRunning && mActiveRegion->getShouldBundleAdjust())
-	{
-		mBAFinished = false;
-		mActiveRegion->setAbortBA(false); //BA will set this internally, add here to avoid a false message in the UI
+            mExpanderCheckPending = false;
+        }
+    }
 
-		mBAFuture = std::async(std::launch::async, BundleAdjustTask, this, true);
-		if (mSingleThreaded)
-		{
-			mBAFuture.wait();
-		}
-	}
+
+    ////////////////////////////////////////////////////////////
+    // Bundle Adjustment
+
+    if ( mActiveRegion->getShouldBundleAdjust()   // Only if newFrame is successfuly added, in expanderTask()
+      && !mExpanderAdding                         // Abort if mMapExpander is busy adding KeyFrame, in expanderTask()
+      && !isBARunning()                           // Abort if BA is busy, isBARunning() = mBAFuture.valid() && !mBAFinished;
+      && !FLAGS_DisableBA)                        // Abort if BA is disabled, set in gflags
+    {
+        mBAFinished = false;
+        mActiveRegion->setAbortBA(false); //BA will set this internally, add here to avoid a false message in the UI
+
+        mBAFuture = std::async(std::launch::async, BundleAdjustTask, this, true);
+        if (mSingleThreaded)
+            mBAFuture.wait();
+    }
 }
 
 std::unique_ptr<SlamMapExpander::CheckData> SlamSystem::createDataForExpander()
@@ -249,7 +244,7 @@ std::unique_ptr<SlamMapExpander::CheckData> SlamSystem::createDataForExpander()
 	expanderData->poseType = mTracker->getPoseType();
 	expanderData->essentialReferenceFrame = mTracker->getEssentialReferenceFrame();
 	expanderData->frame.reset(new SlamKeyFrame(frame)); //Copy frame
-	expanderData->frame->setPose(std::unique_ptr<Pose3D>(new FullPose3D(frame.getPose())));
+    expanderData->frame->setPose(std::unique_ptr<Pose3D>(new FullPose3D(frame.getPose())));//Copy pose
 
 	for(int i=0, end=mTracker->getMatches().size(); i!=end; ++i)
 	{

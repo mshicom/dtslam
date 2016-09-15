@@ -133,20 +133,20 @@ void PatchWarper::calculateWarp(const cv::Matx33f &dst2srcR, const CameraModel &
 {
 	assert(mSourceCamera);
 
-	const cv::Point3f dstCenterXn = dstCamera.unprojectToWorld(dstCenter);
+	const cv::Point3f dstCenterXn = dstCamera.unprojectTo3D(dstCenter);
 	const cv::Point3f worldCenterXn = dst2srcR*dstCenterXn;
 
-	const cv::Point3f dstRightXn = dstCamera.unprojectToWorld(dstRight);
+	const cv::Point3f dstRightXn = dstCamera.unprojectTo3D(dstRight);
 	const cv::Point3f worldRightXn = dst2srcR*dstRightXn;
 	const cv::Point3f worldRightXnOffset = worldRightXn - worldCenterXn;
 	const cv::Point3f srcRightXn = mSourceXn + worldRightXnOffset;
-	const cv::Point2f srcRight = mSourceCamera->projectFromWorld(srcRightXn);
+	const cv::Point2f srcRight = mSourceCamera->projectFrom3D(srcRightXn);
 
-	const cv::Point3f dstBottomXn = dstCamera.unprojectToWorld(dstBottom);
+	const cv::Point3f dstBottomXn = dstCamera.unprojectTo3D(dstBottom);
 	const cv::Point3f worldBottomXn = dst2srcR*dstBottomXn;
 	const cv::Point3f worldBottomXnOffset = worldBottomXn - worldCenterXn;
 	const cv::Point3f srcBottomXn = mSourceXn + worldBottomXnOffset;
-	const cv::Point2f srcBottom = mSourceCamera->projectFromWorld(srcBottomXn);
+	const cv::Point2f srcBottom = mSourceCamera->projectFrom3D(srcBottomXn);
 
 	calculateWarp(srcRight, srcBottom);
 }
@@ -194,13 +194,13 @@ void PatchWarper::calculateWarp3D(const Pose3D &srcPose, const cv::Vec3f &planeN
 
 cv::Point2f PatchWarper::warpPoint3D(const Pose3D &srcPose, const cv::Vec3f &planeNormal, const cv::Vec3f &planePoint, const Pose3D &dstPose, const CameraModel &dstCamera, const cv::Point2f &dstPoint)
 {
-	const cv::Point3f dstXn = dstCamera.unprojectToWorld(dstPoint);
+	const cv::Point3f dstXn = dstCamera.unprojectTo3D(dstPoint);
 	
 	const cv::Point3f worldDirection = dstPose.getRotation().t() * dstXn;
 	const cv::Point3f worldCenter = dstPose.getCenter();
 
 	const cv::Point3f worldPoint = cvutils::linePlaneIntersection(worldCenter, worldDirection, planePoint, planeNormal);
-	return mSourceCamera->projectFromWorld(srcPose.apply(worldPoint));
+	return mSourceCamera->projectFrom3D(srcPose.apply(worldPoint));
 }
 
 void PatchWarper::warpCorners(const cv::Matx23f &warp, cv::Point2f warpedCorners[4])

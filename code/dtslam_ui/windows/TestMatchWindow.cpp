@@ -243,7 +243,7 @@ void TestMatchWindow::updateState()
 	if (mValidFrameA && mValidFrameB && mMatchPosA.x != -1 && (mClickPointB.x != -1 || mUseEpipolar))
 	{
 		//Build test feature
-		cv::Point3f xnA = frameA->getCameraModel().unprojectToWorld(mMatchPosA);
+		cv::Point3f xnA = frameA->getCameraModel().unprojectTo3D(mMatchPosA);
 		SlamFeature feature;
 		SlamFeatureMeasurement m(&feature, const_cast<SlamKeyFrame*>(frameA), mMatchPosA, xnA, mActiveOctave);
 

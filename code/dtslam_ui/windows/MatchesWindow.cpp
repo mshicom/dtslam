@@ -480,9 +480,9 @@ void MatchesWindow::drawMatch(const FeatureMatch &match, const MatchReprojection
 			//Epipolar line, find nearest point on line
 			auto &epipolarData = match.projection.getEpipolarData();
 			const cv::Point2f posS = cvutils::AffinePoint(mProjectionToKeyPointAffine, position);
-			const cv::Point3f xn = mCamera.unprojectToWorld(posS);
+            const cv::Point3f xn = mCamera.unprojectTo3D(posS);
 			const cv::Point3f xnNearest = xn - cv::Point3f(epipolarData.epiPlaneNormal * epipolarData.epiPlaneNormal.dot(xn));
-			const cv::Point2f posNearestS = mCamera.projectFromWorld(xnNearest);
+            const cv::Point2f posNearestS = mCamera.projectFrom3D(xnNearest);
 			const cv::Point2f posNearest = cvutils::AffinePoint(mProjectionToKeyPointAffine, posNearestS);
 
 			vertices[1] = posNearest;

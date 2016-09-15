@@ -58,6 +58,7 @@ public:
 	double getTimestamp() const {return mTimestamp;}
 	void setTimestamp(double value) {mTimestamp=value;}
 
+    // Image Pyramid / Small Blurry Image
 	const cv::Mat1b &getSBI() const {return mSBI;}
 	const cv::Mat1s &getSBIdx() const {return mSBIdx;}
 	const cv::Mat1s &getSBIdy() const {return mSBIdy;}

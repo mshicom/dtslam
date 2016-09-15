@@ -37,7 +37,7 @@ void ReprojectionError3D::computeAllResidualsXc(const T * const xc, T *allResidu
 	{
 		//Point in front of camera, proceed
 		T u,v;
-		mCamera->projectFromWorld(xc[0],xc[1],xc[2],u,v);
+        mCamera->projectFrom3D(xc[0],xc[1],xc[2],u,v);
 
 		//Calculate residuals for all points
 		for(int i=0; i<mImagePointCount; ++i)

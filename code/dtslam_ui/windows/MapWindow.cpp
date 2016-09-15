@@ -76,7 +76,7 @@ void MapWindow::updateState()
 		const cv::Point3f xc = mViewerPose.apply(feature.getPosition());
 
 		//Inside image frame?
-		const cv::Point2f pos = mViewerCamera.projectFromWorld(xc);
+		const cv::Point2f pos = mViewerCamera.projectFrom3D(xc);
 		if(!mViewerCamera.isPointInside(xc, pos))
 			continue;
 
@@ -98,7 +98,7 @@ void MapWindow::updateState()
 		const cv::Point3f xc = mViewerPose.apply(center);
 
 		//Inside image frame?
-		cv::Point2f pos = mViewerCamera.projectFromWorld(xc);
+		cv::Point2f pos = mViewerCamera.projectFrom3D(xc);
 		if(!mViewerCamera.isPointInside(xc, pos))
 			continue;
 
@@ -115,14 +115,14 @@ void MapWindow::updateState()
 
 	//Pose log
 	mPoseLog.clear();
-	//for (auto &log : mSlam->mPoseLog)
-	//{
-	//	mPoseLog.push_back(cvutils::PointToHomogenous(log.second + log.first->getPose().getCenter()));
-	//}
-	//for (auto &keyframe : mRegion->getKeyFrames())
-	//{
-	//	mPoseLog.push_back(cvutils::PointToHomogenous(keyframe->getPose().getCenter()));
-	//}
+    for (auto &log : mSlam->mPoseLog)
+    {
+        mPoseLog.push_back(cvutils::PointToHomogenous(log.second + log.first->getPose().getCenter()));
+    }
+//    for (auto &keyframe : mRegion->getKeyFrames())
+//    {
+//        mPoseLog.push_back(cvutils::PointToHomogenous(keyframe->getPose().getCenter()));
+//    }
 
     //Features
 	for(auto featurePtr : mFeaturesInView)
@@ -313,7 +313,7 @@ void MapWindow::updateCube(const cv::Point2f &origin, const cv::Point2f &end)
 	for(auto &feature : mFeaturesToDraw)
 	{
 		cv::Point3f center(feature.center[0], feature.center[1], feature.center[2]);
-		cv::Point2f screenPos = mViewerCamera.projectFromWorld(mViewerPose.apply(center));
+		cv::Point2f screenPos = mViewerCamera.projectFrom3D(mViewerPose.apply(center));
 
 		if(screenPos.x >= origin.x && screenPos.y >= origin.y && screenPos.x <= end.x && screenPos.y <= end.y)
 			points.push_back(center);
@@ -408,6 +408,32 @@ void MapWindow::zoom(float ammount)
 		updateState();
 	}
 }
+dtslam::FullPose3D lookAt( cv::Vec3f &eyePoint, cv::Vec3f &targetPoint, cv::Vec3f &upVector, bool isInverted=false)
+{
+    // step one: generate a rotation matrix
+
+
+    cv::Vec3f z = eyePoint-targetPoint;
+    cv::Vec3f x = upVector.cross(z);   // cross product
+    cv::Vec3f y = z.cross(x);          // cross product
+
+    x = cv::normalize(x);
+    y = cv::normalize(y);
+    z = cv::normalize(z);
+
+    cv::Mat R;
+    R.at<cv::Vec3f>(0,1) = x;
+    R.at<cv::Vec3f>(1,1) = y;
+    R.at<cv::Vec3f>(2,1) = z;
+
+    cv::Vec3f t = R.dot(-eyePoint);
+    if (isInverted)
+    {
+        R = R.t();
+        t = -R.dot(t);
+    }
+    return FullPose3D(R,t);
+}
 
 void MapWindow::touchMove(int x, int y)
 {
@@ -415,8 +441,8 @@ void MapWindow::touchMove(int x, int y)
 	if(mActiveDragType == EDragType::DraggingRotation)
 	{
 		//Rotation
-		cv::Point3f originXn = mViewerCamera.unprojectToWorld(mDragOrigin);
-		cv::Point3f endXn = mViewerCamera.unprojectToWorld(mDragEnd);
+		cv::Point3f originXn = mViewerCamera.unprojectTo3D(mDragOrigin);
+		cv::Point3f endXn = mViewerCamera.unprojectTo3D(mDragEnd);
 
 		float angleX = 2 * asinf(originXn.x-endXn.x);
 		float angleY = 2 * asinf(endXn.y - originXn.y);
@@ -528,7 +554,7 @@ void MapWindow::drawFeature(const DrawFeatureData &data)
 	if(mActiveDragType == EDragType::DraggingCube)
 	{
 		cv::Point3f center(data.center[0], data.center[1], data.center[2]);
-		cv::Point2f screenPos = mViewerCamera.projectFromWorld(mViewerPose.apply(center));
+		cv::Point2f screenPos = mViewerCamera.projectFrom3D(mViewerPose.apply(center));
 
 		if(screenPos.x >= mDragOrigin.x && screenPos.y >= mDragOrigin.y && screenPos.x <= mDragEnd.x && screenPos.y <= mDragEnd.y)
 			solidColor = StaticColors::White(1);
@@ -576,10 +602,10 @@ MapWindow::DrawFrustumData MapWindow::prepareFrameFrustum(const Pose3D &pose, co
 	DrawFrustumData data;
     const float kFrustumDepth = 0.3f*mMapDrawScale;
 
-    data.tl = camera.unprojectToWorld(cv::Point2f(0, 0)) * kFrustumDepth;
-	data.tr = camera.unprojectToWorld(cv::Point2f((float)camera.getImageSize().width, 0)) * kFrustumDepth;
-	data.bl = camera.unprojectToWorld(cv::Point2f(0, (float)camera.getImageSize().height)) * kFrustumDepth;
-	data.br = camera.unprojectToWorld(cv::Point2f((float)camera.getImageSize().width, (float)camera.getImageSize().height)) * kFrustumDepth;
+    data.tl = camera.unprojectTo3D(cv::Point2f(0, 0)) * kFrustumDepth;
+	data.tr = camera.unprojectTo3D(cv::Point2f((float)camera.getImageSize().width, 0)) * kFrustumDepth;
+	data.bl = camera.unprojectTo3D(cv::Point2f(0, (float)camera.getImageSize().height)) * kFrustumDepth;
+	data.br = camera.unprojectTo3D(cv::Point2f((float)camera.getImageSize().width, (float)camera.getImageSize().height)) * kFrustumDepth;
 
     data.center = -pose.getRotation().t() * pose.getTranslation();
     data.tl = pose.applyInv(data.tl);
